@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Colagem Vertical de Imagens</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            padding: 30px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .upload-section {
+            background: #f8f9fa;
+            border: 2px dashed #3498db;
+            border-radius: 10px;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: all 0.3s;
+        }
+
+        .upload-section:hover {
+            border-color: #2980b9;
+            background: #e8f4fc;
+        }
+
+        .upload-btn {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .upload-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        #imageInput {
+            display: none;
+        }
+
+        .info {
+            margin-top: 15px;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .controls {
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .generate-btn {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .generate-btn:hover {
+            background: #27ae60;
+        }
+
+        .download-btn {
+            background: #3498db;
+            color: white;
+        }
+
+        .download-btn:hover {
+            background: #2980b9;
+        }
+
+        .reset-btn {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .reset-btn:hover {
+            background: #c0392b;
+        }
+
+        .btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        input[type="range"] {
+            width: 150px;
+            height: 6px;
+            border-radius: 3px;
+            background: #bdc3c7;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #3498db;
+            cursor: pointer;
+        }
+
+        .preview {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 900px) {
+            .preview {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .preview-container, .result-container {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            min-height: 400px;
+            border: 2px solid #dfe6e9;
+        }
+
+        .placeholder {
+            text-align: center;
+            color: #7f8c8d;
+            font-style: italic;
+            margin-top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .image-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .image-item {
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .image-preview {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        .image-name {
+            flex-grow: 1;
+            font-size: 0.9em;
+            word-break: break-all;
+        }
+
+        .remove-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        canvas {
+            max-width: 100%;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            display: none;
+        }
+
+        .status {
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .loading {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+            text-align: center;
+        }
+
+        .file-count {
+            background: #3498db;
+            color: white;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9em;
+            margin-left: 10px;
+        }
+
+        .image-counter {
+            margin-top: 10px;
+            text-align: center;
+            font-size: 0.9em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖼️ Criador de Colagem Vertical</h1>
+        <p class="subtitle">Faça colagens com suas imagens juntando todas em uma única imagem</p>
+        
+        <div class="upload-section">
+            <label for="imageInput" class="upload-btn">
+                📁 Selecione Imagens
+                <input type="file" id="imageInput" accept=".jpg,.jpeg,.png,.webp,.gif" multiple>
+            </label>
+            <p class="info">Selecione múltiplas imagens (Ctrl+Click ou Shift+Click)</p>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label>Espaçamento:</label>
+                <input type="range" id="spacing" min="0" max="50" value="10">
+                <span id="spacingValue">10px</span>
+            </div>
+            
+            <button id="generateBtn" class="btn generate-btn">🛠️ Gerar Colagem</button>
+            <button id="downloadBtn" class="btn download-btn" disabled>💾 Baixar Imagem</button>
+            <button id="resetBtn" class="btn reset-btn">🗑️ Limpar Tudo</button>
+        </div>
+
+        <div class="preview">
+            <div class="preview-container">
+                <h3>Imagens Selecionadas <span id="fileCount" class="file-count">0</span></h3>
+                <div id="imageList" class="image-list">
+                    <p class="placeholder">Nenhuma imagem selecionada ainda...</p>
+                </div>
+            </div>
+            
+            <div class="result-container">
+                <h3>Colagem Resultante</h3>
+                <canvas id="canvas"></canvas>
+                <p id="resultPlaceholder" class="placeholder">A colagem final aparecerá aqui...</p>
+            </div>
+        </div>
+
+        <div id="status" class="status"></div>
+    </div>
+
+    <script>
+        // Elementos do DOM
+        const imageInput = document.getElementById('imageInput');
+        const generateBtn = document.getElementById('generateBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const imageList = document.getElementById('imageList');
+        const resultPlaceholder = document.getElementById('resultPlaceholder');
+        const fileCount = document.getElementById('fileCount');
+        const spacingSlider = document.getElementById('spacing');
+        const spacingValue = document.getElementById('spacingValue');
+        const statusDiv = document.getElementById('status');
+
+        // Variáveis globais
+        let images = [];
+        let imageObjects = [];
+
+        // Atualizar valor do espaçamento
+        spacingSlider.addEventListener('input', function() {
+            spacingValue.textContent = this.value + 'px';
+        });
+
+        // Selecionar imagens
+        imageInput.addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            
+            // Limpar array de imagens
+            images = [];
+            imageObjects = [];
+            
+            // Limpar lista de preview
+            imageList.innerHTML = '';
+            
+            if (files.length === 0) {
+                imageList.innerHTML = '<p class="placeholder">Nenhuma imagem selecionada ainda...</p>';
+                fileCount.textContent = '0';
+                return;
+            }
+            
+            // Atualizar contador
+            fileCount.textContent = files.length;
+            
+            // Processar cada arquivo
+            files.forEach((file, index) => {
+                // Verificar se é uma imagem
+                if (!file.type.match('image.*')) {
+                    showStatus('⚠️ O arquivo "' + file.name + '" não é uma imagem!', 'error');
+                    return;
+                }
+                
+                // Adicionar ao array
+                images.push(file);
+                
+                // Criar elemento para preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        // Criar item na lista
+                        const imageItem = document.createElement('div');
+                        imageItem.className = 'image-item';
+                        imageItem.innerHTML = `
+                            <img src="${e.target.result}" class="image-preview">
+                            <div class="image-name">${file.name}</div>
+                            <button class="remove-btn" data-index="${index}">×</button>
+                        `;
+                        imageList.appendChild(imageItem);
+                        
+                        // Adicionar objeto de imagem
+                        imageObjects.push({
+                            src: e.target.result,
+                            img: img,
+                            name: file.name
+                        });
+                        
+                        // Adicionar evento ao botão de remover
+                        imageItem.querySelector('.remove-btn').addEventListener('click', function() {
+                            const indexToRemove = parseInt(this.getAttribute('data-index'));
+                            removeImage(indexToRemove);
+                        });
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            if (files.length > 0) {
+                generateBtn.disabled = false;
+            }
+        });
+
+        // Remover imagem da lista
+        function removeImage(index) {
+            images.splice(index, 1);
+            imageObjects.splice(index, 1);
+            
+            // Atualizar preview
+            updateImageList();
+            
+            // Atualizar contador
+            fileCount.textContent = images.length;
+            
+            if (images.length === 0) {
+                generateBtn.disabled = true;
+                downloadBtn.disabled = true;
+            }
+        }
+
+        // Atualizar lista de imagens
+        function updateImageList() {
+            imageList.innerHTML = '';
+            
+            if (imageObjects.length === 0) {
+                imageList.innerHTML = '<p class="placeholder">Nenhuma imagem selecionada ainda...</p>';
+                return;
+            }
+            
+            imageObjects.forEach((imgObj, index) => {
+                const imageItem = document.createElement('div');
+                imageItem.className = 'image-item';
+                imageItem.innerHTML = `
+                    <img src="${imgObj.src}" class="image-preview">
+                    <div class="image-name">${imgObj.name}</div>
+                    <button class="remove-btn" data-index="${index}">×</button>
+                `;
+                imageList.appendChild(imageItem);
+                
+                // Adicionar evento ao botão de remover
+                imageItem.querySelector('.remove-btn').addEventListener('click', function() {
+                    const indexToRemove = parseInt(this.getAttribute('data-index'));
+                    removeImage(indexToRemove);
+                });
+            });
+        }
+
+        // Gerar colagem
+        generateBtn.addEventListener('click', function() {
+            if (imageObjects.length === 0) {
+                showStatus('❌ Selecione pelo menos uma imagem primeiro!', 'error');
+                return;
+            }
+            
+            showStatus('⏳ Gerando colagem...', 'loading');
+            
+            // Calcular dimensões totais
+            let totalHeight = 0;
+            let maxWidth = 0;
+            const spacing = parseInt(spacingSlider.value);
+            
+            // Calcular altura total e largura máxima
+            imageObjects.forEach(imgObj => {
+                totalHeight += imgObj.img.height;
+                if (imgObj.img.width > maxWidth) {
+                    maxWidth = imgObj.img.width;
+                }
+            });
+            
+            // Adicionar espaçamento entre imagens
+            totalHeight += spacing * (imageObjects.length - 1);
+            
+            // Configurar canvas
+            canvas.width = maxWidth;
+            canvas.height = totalHeight;
+            canvas.style.display = 'block';
+            
+            // Limpar canvas
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Desenhar imagens
+            let currentY = 0;
+            
+            imageObjects.forEach((imgObj, index) => {
+                // Centralizar horizontalmente
+                const x = (maxWidth - imgObj.img.width) / 2;
+                
+                // Desenhar imagem
+                ctx.drawImage(imgObj.img, x, currentY);
+                
+                // Adicionar linha de separação (exceto na última imagem)
+                if (index < imageObjects.length - 1) {
+                    ctx.fillStyle = '#f0f0f0';
+                    ctx.fillRect(0, currentY + imgObj.img.height, maxWidth, spacing);
+                }
+                
+                // Atualizar posição Y
+                currentY += imgObj.img.height + spacing;
+            });
+            
+            // Mostrar resultado
+            resultPlaceholder.style.display = 'none';
+            canvas.style.display = 'block';
+            downloadBtn.disabled = false;
+            
+            showStatus('✅ Colagem gerada com sucesso! Clique em "Baixar Imagem" para salvar.', 'success');
+        });
+
+        // Baixar imagem
+        downloadBtn.addEventListener('click', function() {
+            if (canvas.width === 0) return;
+            
+            // Criar link para download
+            const link = document.createElement('a');
+            link.download = `colagem-${new Date().getTime()}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            
+            showStatus('✅ Imagem baixada com sucesso!', 'success');
+        });
+
+        // Limpar tudo
+        resetBtn.addEventListener('click', function() {
+            // Limpar arrays
+            images = [];
+            imageObjects = [];
+            
+            // Limpar input de arquivos
+            imageInput.value = '';
+            
+            // Limpar preview
+            imageList.innerHTML = '<p class="placeholder">Nenhuma imagem selecionada ainda...</p>';
+            
+            // Limpar canvas
+            canvas.width = 0;
+            canvas.height = 0;
+            canvas.style.display = 'none';
+            resultPlaceholder.style.display = 'block';
+            
+            // Desabilitar botões
+            generateBtn.disabled = true;
+            downloadBtn.disabled = true;
+            
+            // Resetar contador
+            fileCount.textContent = '0';
+            
+            // Resetar espaçamento
+            spacingSlider.value = 10;
+            spacingValue.textContent = '10px';
+            
+            // Limpar status
+            statusDiv.style.display = 'none';
+            
+            showStatus('🗑️ Tudo foi limpo! Você pode começar uma nova colagem.', 'success');
+        });
+
+        // Mostrar mensagem de status
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+            
+            // Esconder mensagem após 5 segundos (exceto para loading)
+            if (type !== 'loading') {
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        // Inicialização
+        window.addEventListener('DOMContentLoaded', function() {
+            showStatus('📱 Selecione suas imagens para começar a criar uma colagem!', 'success');
+        });
+    </script>
+</body>
+</html>
