@@ -29,7 +29,7 @@
 <!-- Link animado -->
 <div align="center">
   
-  [![Experimente Agora](https://img.shields.io/badge/🎯-EXPERIMENTE%20AGORA%20➡️-red?style=for-the-badge&logo=firefox)](https://seu-site.com)
+  [![Experimente Agora](https://img.shields.io/badge/🎯-EXPERIMENTE%20AGORA%20➡️-red?style=for-the-badge&logo=firefox)]([https://seu-site.com](https://raquelsantos380.github.io/Site-da-colagem-de-produtos/))
   
   *Clique acima para testar imediatamente!*
   
